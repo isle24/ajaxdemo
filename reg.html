@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>无刷新注册</title>
+    <style>
+        #reg{width:400px;height: 300px;position: relative;margin:10px auto}
+        #reg label{float:right;position: relative;margin-top: 10px;font-size: 28px;}
+        #reg label input{width:250px;height: 40px;font-size: 24px;}
+        #reg #btn{width:120px;height: 40px;position: absolute;right: 65px;margin-top: 80px;}
+        #reg span{width:200px;position: absolute;right: -210px;font-size: 24px;}
+        #reg #user{top:20px;}
+        #reg #pass{top:75px;}
+        #reg #rep{top:130px;}
+        #reg #em{top:185px;}
+        .error{color:red;}
+        .ok{color:greenyellow;}
+    </style>
+    <script src="ajax.js"></script>
+    <script>
+        window.onload = function ()
+        {
+            //后台验证
+            bgProcess();
+            //提交注册信息，返回注册成功与否
+            $('btn').onclick = function ()
+            {
+                var jsonData = {username:$('username').value,passw:$('passw').value,
+                    repassw:$('repassw').value,email:$('email').value};
+                ajax('regProccess.php',jsonData,getInfo,'json');
+            };
+            function getInfo(info)
+            {
+                var a = ['username','passw','repassw','email'];
+                var b = ['user','pass','rep','em'];
+                var flag = true;
+                for(var i =0;i<info.length;i++)
+                {
+                    if(info[i].state == 'false')
+                    {
+                        flag = false;
+                        displayInfo(info[i],b[i],a[i]); //显示错误信息
+                    }
+                }
+                if(flag) alert('恭喜你注册成功');
+            }
+        };
+        //后台验证
+        function bgProcess()
+        {
+            //验证用户名
+            $('username').onblur = function ()
+            {
+                var jsonData = {username:this.value};
+                ajax('regProccess.php',jsonData,getUser,'json');
+            };
+            function getUser(msg)
+            {
+                displayInfo(msg[0],'user','username');
+            }
+            //验证密码
+            $('passw').onkeyup = $('passw').onblur= function ()
+            {
+                var jsonData = {passw:this.value};
+                ajax('regProccess.php',jsonData,getPass,'json');
+            };
+            function getPass(msg)
+            {
+                displayInfo(msg[1],'pass','passw');
+            }
+            //确认密码
+            $('repassw').onblur = function ()
+            {
+                var jsonData = {passw:$('passw').value,repassw:this.value};
+                ajax('regProccess.php',jsonData,getRepass,'json');
+            };
+            function getRepass(msg)
+            {
+                displayInfo(msg[2],'rep','repassw');
+            }
+            //验证邮箱
+            $('email').onblur= function ()
+            {
+                var jsonData = {email:this.value};
+                ajax('regProccess.php',jsonData,getEmail,'json');
+            };
+            function getEmail(msg)
+            {
+                displayInfo(msg[3],'em','email');
+            }
+        }
+        //显示信息
+        function displayInfo(msg,id,name)
+        {
+            $(id).className = (msg.state == 'true')?'ok':'error';
+            $(id).innerHTML = msg[name];
+        }
+        function $(id)
+        {
+            return document.getElementById(id);
+        }
+    </script>
+</head>
+<body>
+    <div id="reg">
+        <label>用户名:<input type="text" id="username" /></label><label></label><br /><br />
+        <label>密码:<input type="password" id="passw" /></label><br /><br />
+        <label>确认密码:<input type="password" id="repassw" /></label><br /><br />
+        <label>邮箱:<input type="text" id="email" /></label><br /><br />
+        <button id="btn">注册</button>
+        <span id="user"></span>
+        <span id="pass"></span>
+        <span id="rep"></span>
+        <span id="em"></span>
+    </div>
+</body>
+</html>
